@@ -41,7 +41,7 @@
 						<TextBlock 
 							HorizontalAlignment="Left" 
 							VerticalAlignment="Top" 
-							Text="Группа 1. Иммитация въезд/выезд ГРЗ."/>
+							Text="Группа 1. Иммитация въезд/выезд ГРЗ. (Отправка get запроса в модуль интерграции CVS)"/>
 						
 						<Grid Grid.Row="1" Margin="10,0,20,0" VerticalAlignment="Top">
 							<Grid.ColumnDefinitions>
@@ -53,10 +53,12 @@
 							<TextBox
 								Grid.Column="0"
 								Height="30"
+								Watermark="ГРЗ"
 								Text="{Binding GRZ}"/>
 							<TextBox
 								Width="70"
 								HorizontalContentAlignment="Center"
+								Watermark="№"
 								Text="{Binding GRZCameraNumber}"
 								Grid.Column="1"/>
 							<Button
@@ -122,7 +124,7 @@
 							<RowDefinition Height="25"/>
 							<RowDefinition Height="40"/>
 						</Grid.RowDefinitions>
-						<TextBlock Text="Группа 2. Управление табло."/>
+						<TextBlock Text="Группа 2. Управление табло. (Топик: Parking/MonitorDoor/Monitor/View)"/>
 
 						<Grid Grid.Row="1">
 							<Grid.ColumnDefinitions>
@@ -139,11 +141,16 @@
 								<ColumnDefinition Width="60" />
 								<ColumnDefinition Width="100"/>
 							</Grid.ColumnDefinitions>
-							<TextBox Height="30" 
-									 Text="{Binding EditMonitorText}"/>
-							<TextBox Height="30"
-									 Grid.Column="1"
-									 Text="{Binding MonitorCameraNumber}"/>
+							<TextBox 
+								Height="30" 
+								Watermark="Текст"
+								Text="{Binding EditMonitorText}"/>
+							<TextBox 
+								Height="30"
+								Grid.Column="1"
+								Watermark="№"
+								HorizontalContentAlignment="Center"
+								Text="{Binding MonitorCameraNumber}"/>
 							<Button 
 								Grid.Column="2" 
 								Content="Отправить" 
@@ -161,7 +168,7 @@
 							</Grid.RowDefinitions>
 							
 							<TextBlock Grid.Row="0" 
-									   Text="Группа 4. Шлагбаум."/>
+									   Text="Группа 4. Шлагбаум. (Топик: Parking/MonitorDoor/Door/Open/{0/1})"/>
 
 							<Grid Grid.Row="1">
 								<Grid.ColumnDefinitions>
@@ -176,20 +183,32 @@
 							<Grid Grid.Row="2" >
 								<Grid.ColumnDefinitions>
 									<ColumnDefinition Width="70"/>
+									<ColumnDefinition Width="70"/>
 									<ColumnDefinition Width="80"/>
 									<ColumnDefinition Width="150"/>
 								</Grid.ColumnDefinitions>
-								<TextBox Height="30"
-									 Grid.Column="0"
-									 Text="{Binding DoorCameraNumber}"/>
-								<Button Grid.Column="1" 
-										Content="Открыть" 
-										HorizontalAlignment="Center"
-										Command="{Binding OpenStateDoor}"/>
-								<Button Grid.Column="2"
-										Content="Аварийный режим" 
-										HorizontalAlignment="Center"
-										Command="{Binding WarningStateDoor}"/>
+								<TextBox 
+									Height="30"
+									Grid.Column="0"
+									HorizontalContentAlignment="Center"
+									Watermark="№"
+									Text="{Binding DoorCameraNumber}"/>
+								<TextBox
+									Height="30"
+									Grid.Column="1"
+									HorizontalContentAlignment="Center"
+									Watermark="door"
+									Text="{Binding DoorNumber}"/>
+								<Button 
+									Grid.Column="2" 
+									Content="Открыть" 
+									HorizontalAlignment="Center"
+									Command="{Binding OpenStateDoor}"/>
+								<Button 
+									Grid.Column="3"
+									Content="Аварийный режим" 
+									HorizontalAlignment="Center"
+									Command="{Binding WarningStateDoor}"/>
 							</Grid>
 						</Grid>
 					</Grid>

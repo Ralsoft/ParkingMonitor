@@ -60,7 +60,7 @@ namespace ParkingMonitor.Service
             });
         }
 
-        public async Task OpenDoor(int camNumber)
+        public async Task OpenDoor(int camNumber, string doorNumber)
         {
             await Task.Run(() =>
             {
@@ -74,7 +74,8 @@ namespace ParkingMonitor.Service
                 });
 
                 byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
-                SendMessage("Parking/MonitorDoor/Door/Open/", jsonBytes);
+
+                SendMessage($"Parking/MonitorDoor/Door/Open/{doorNumber}/", jsonBytes);
             });
         }
 

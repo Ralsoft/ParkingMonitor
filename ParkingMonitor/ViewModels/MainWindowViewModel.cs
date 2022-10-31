@@ -67,6 +67,13 @@ namespace ParkingMonitor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _doorCameraNumber, value);
         }
 
+        private string _doorNumber;
+        public string DoorNumber
+        {
+            get => _doorNumber;
+            set => this.RaiseAndSetIfChanged(ref _doorNumber, value);
+        }
+
         private string _monitorText;
         public string MonitorText
         {
@@ -135,7 +142,7 @@ namespace ParkingMonitor.ViewModels
 
             OpenStateDoor = ReactiveCommand.Create(async () =>
             {
-                await _service.OpenDoor(Convert.ToInt32(DoorCameraNumber));
+                await _service.OpenDoor(Convert.ToInt32(DoorCameraNumber), DoorNumber);
             });
 
             WarningStateDoor = ReactiveCommand.Create(async () =>
