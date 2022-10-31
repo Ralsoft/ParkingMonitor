@@ -1,25 +1,23 @@
+using Avalonia.Threading;
+using ParkingMonitor.Interfaces;
 using ParkingMonitor.Models;
 using ParkingMonitor.Service;
 using ReactiveUI;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using System.Windows.Input;
 
 namespace ParkingMonitor.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase
+    public class MainWindowViewModel : ViewModelBase, IMQTTPublishReceived
     {
 
         #region ICommands
 
         #region Group1
 
-        public ICommand ClickLeave { get; private set; }
-        public ICommand ClickEntry { get; private set; }
+        public ICommand ClickSend { get; private set; }
         #endregion
 
         #region Group2
@@ -46,8 +44,29 @@ namespace ParkingMonitor.ViewModels
         {
             get => _grz;
             set => this.RaiseAndSetIfChanged(ref _grz, value);
-        }  
-        
+        }
+
+        private string _grzCameraNumber;
+        public string GRZCameraNumber
+        {
+            get => _grzCameraNumber;
+            set => this.RaiseAndSetIfChanged(ref _grzCameraNumber, value);
+        }
+
+        private string _monitorCameraNumber;
+        public string MonitorCameraNumber
+        {
+            get => _monitorCameraNumber;
+            set => this.RaiseAndSetIfChanged(ref _monitorCameraNumber, value);
+        }
+
+        private string _doorCameraNumber;
+        public string DoorCameraNumber
+        {
+            get => _doorCameraNumber;
+            set => this.RaiseAndSetIfChanged(ref _doorCameraNumber, value);
+        }
+
         private string _monitorText;
         public string MonitorText
         {
@@ -62,31 +81,39 @@ namespace ParkingMonitor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _editMonitorText, value);
         }
 
+        private ObservableCollection<ParkingEvent> _parkingEvents = new ObservableCollection<ParkingEvent>();
+        public ObservableCollection<ParkingEvent> ParkingEvents
+        {
+            get => _parkingEvents;
+            set => this.RaiseAndSetIfChanged(ref _parkingEvents, value);
+        }
+
+        public bool CurrentThreadIsLoopThread => throw new NotImplementedException();
 
 
         #endregion
 
         private MqttService _service;
 
+        public event Action<DispatcherPriority?> Signaled;
+
         public MainWindowViewModel()
         {
-
-            _service = new MqttService();
-            var canClickEntryLeave = this
+            _service = new MqttService(this);
+           
+            var canClickSend = this
                .WhenAnyValue(
                    x => x.GRZ,
-                   (grz) => grz?.Length == 8);
+                   y => y.GRZCameraNumber,
+                   (grz, cm) => grz?.Length == 8 && cm?.Length > 0);
 
 
-            ClickLeave = ReactiveCommand.Create(async () =>
+            ClickSend = ReactiveCommand.Create(async () =>
             {
-                string result = await HttpService.sendGRZ(GRZ, "2");
-            }, canClickEntryLeave);
+                string result = await HttpService.sendGRZ(GRZ, GRZCameraNumber);
+            }, canClickSend);
 
-            ClickEntry = ReactiveCommand.Create( async () =>
-            {
-                string result = await HttpService.sendGRZ(GRZ, "1");
-            }, canClickEntryLeave);
+           
 
             ClickSendTextMonitor = ReactiveCommand.Create(async () =>
             {
@@ -97,23 +124,30 @@ namespace ParkingMonitor.ViewModels
                     {
                         new Message()
                         {
-                            Color = 0x00,
+                            Color = 0x01,
                             X = 0x00,
                             Y = 0x00,
                             Text = EditMonitorText
                         }
-                    });
+                    }, Convert.ToInt32(MonitorCameraNumber));
                 }
             });
 
             OpenStateDoor = ReactiveCommand.Create(async () =>
             {
-                await _service.OpenDoor();
+                await _service.OpenDoor(Convert.ToInt32(DoorCameraNumber));
             });
 
             WarningStateDoor = ReactiveCommand.Create(async () =>
             {
-                await _service.WarningDoor();
+                await _service.WarningDoor(Convert.ToInt32(DoorCameraNumber));
+            });
+        }
+
+        public void AddEvent(ParkingEvent @event)
+        {
+            Dispatcher.UIThread.InvokeAsync(async () => {
+                ParkingEvents.Add(@event);
             });
         }
     }

@@ -1,9 +1,9 @@
-﻿using ParkingMonitor.Models;
-using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using ParkingMonitor.Interfaces;
+using ParkingMonitor.Models;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
 using uPLibrary.Networking.M2Mqtt.Messages;
@@ -14,11 +14,24 @@ namespace ParkingMonitor.Service
     {
         private MqttClient _client;
 
-        public MqttService()
+        public MqttService(IMQTTPublishReceived iMQTTPublishReceived)
         {
             _client = new MqttClient("194.87.237.67");
             _client.Connect("ParkingMonitor");
+            _client.Subscribe(new string[] { "Parking/#" }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
+            _client.MqttMsgPublishReceived += (sender, e) =>
+            {
+                iMQTTPublishReceived.AddEvent(new ParkingEvent
+                {
+                    Place = "тест",
+                    DateTime = System.DateTime.Now,
+                    EventType = "тест",
+                    GRZ = "тест"
+                });
+            };
         }
+
+
 
         public async Task SendMessage(string topic, byte[] message)
         {
@@ -28,59 +41,59 @@ namespace ParkingMonitor.Service
             });
         }
 
-        public async Task SendTextOnMonitor(List<Message> messages)
+        public async Task SendTextOnMonitor(List<Message> messages, int camNumber)
         {
             await Task.Run(() =>
             {
                 var monitor = new Monitor()
                 {
-                    IP = "192.168.8.110",
-                    Port = 1985,
-                    CumNumber = "2",
+                    CamNumber = camNumber,
                     Messages = messages
                 };
-                var json = JsonSerializer.Serialize(monitor);
+                var json = JsonConvert.SerializeObject(monitor, new JsonSerializerSettings()
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
 
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                var WIN1251 = Encoding.GetEncoding("windows-1251");
-                byte[] jsonBytes = WIN1251.GetBytes(json);
-                SendMessage("Parking/MonitorDoor/Monitor/View", jsonBytes);
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                SendMessage("Parking/MonitorDoor/Monitor/View/", jsonBytes);
             });
         }
 
-        public async Task OpenDoor()
+        public async Task OpenDoor(int camNumber)
         {
             await Task.Run(() =>
             {
                 var door = new Door()
                 {
-                    IP = "192.168.8.110",
-                    Port = 1985
+                    CameraNumber = camNumber
                 };
-                var json = JsonSerializer.Serialize(door);
+                var json = JsonConvert.SerializeObject(door, new JsonSerializerSettings()
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
 
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                var WIN1251 = Encoding.GetEncoding("windows-1251");
-                byte[] jsonBytes = WIN1251.GetBytes(json);
-                SendMessage("Parking/MonitorDoor/Door/Open", jsonBytes);
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                SendMessage("Parking/MonitorDoor/Door/Open/", jsonBytes);
             });
         }
 
-        public async Task WarningDoor()
+        public async Task WarningDoor(int camNumber)
         {
             await Task.Run(() =>
             {
                 var door = new Door()
                 {
-                    IP = "localhost",
-                    Port = 1234
+                    CameraNumber = camNumber
                 };
-                var json = JsonSerializer.Serialize(door);
+         
+                var json = JsonConvert.SerializeObject(door, new JsonSerializerSettings()
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
 
-                Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-                var WIN1251 = Encoding.GetEncoding("windows-1251");
-                byte[] jsonBytes = WIN1251.GetBytes(json);
-                SendMessage("Parking/MonitorDoor/Door/Warning", jsonBytes);
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                SendMessage("Parking/MonitorDoor/Door/Warning/", jsonBytes);
             });
         }
     }

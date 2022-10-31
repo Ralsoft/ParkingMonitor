@@ -20,14 +20,14 @@
 
 		<Grid Grid.Row="0">
 			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="3*"/>
 				<ColumnDefinition Width="2*"/>
-				<ColumnDefinition Width="1*"/>
 			</Grid.ColumnDefinitions>
 
 			<Grid Grid.Column="0">
 				<Grid>
 					<Grid.RowDefinitions>
-						<RowDefinition Height="2*"/>
+						<RowDefinition Height="70"/>
 						<RowDefinition Height="4*"/>
 						<RowDefinition Height="4*"/>
 					</Grid.RowDefinitions>
@@ -47,24 +47,23 @@
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition/>
 								<ColumnDefinition Width="70"/>
-								<ColumnDefinition Width="70"/>
+								<ColumnDefinition Width="100"/>
 							</Grid.ColumnDefinitions>
 							
 							<TextBox
 								Grid.Column="0"
 								Height="30"
 								Text="{Binding GRZ}"/>
-							<Button
+							<TextBox
 								Width="70"
 								HorizontalContentAlignment="Center"
-								Content="Въезд"
-								Command="{Binding ClickLeave}"
+								Text="{Binding GRZCameraNumber}"
 								Grid.Column="1"/>
 							<Button
-								Width="70"
+								Width="100"
 								HorizontalContentAlignment="Center"
-								Command="{Binding ClickEntry}"
-								Content="Выезд"
+								Command="{Binding ClickSend}"
+								Content="Отправить"
 								Grid.Column="2"/>
 							
 						</Grid>
@@ -96,31 +95,32 @@
 						</Grid.RowDefinitions>
 						
 						<TextBlock Text="Группа 6. Журнал событий парковки."/>
-						<DataGrid Grid.Row="1" Items="{Binding ParkingLog}" >
+						<DataGrid Grid.Row="1" Items="{Binding ParkingEvents}" >
 							<DataGrid.Columns>
-								<DataGridTextColumn Header="Дата, Время"  Binding="{Binding DateAndTimeLogEvent}"/>
-								<DataGridTextColumn Header="Место" Binding="{Binding LocationLogEvent}" />
-								<DataGridTextColumn Header="Лицевой счет" Binding="{Binding PersonalAccountLogEvent}" />
-								<DataGridTextColumn Header="Событие" Binding="{Binding LogEvent}" />
+								<DataGridTextColumn Header="Дата, Время"  Binding="{Binding DateTime}"/>
+								<DataGridTextColumn Header="Место" Binding="{Binding Place}" />
+								<DataGridTextColumn Header="ГРЗ" Binding="{Binding GRZ}" />
+								<DataGridTextColumn Header="Событие" Binding="{Binding EventType}" />
 							</DataGrid.Columns>
 						</DataGrid>
 					</Grid>
 				</Grid>
 			</Grid>
 
+			
 			<Grid Grid.Column="1">
 				<Grid>
 					<Grid.RowDefinitions>
-						<RowDefinition Height="3*"/>
-						<RowDefinition Height="3*"/>
-						<RowDefinition Height="5*"/>
+						<RowDefinition Height="100"/>
+						<RowDefinition Height="100"/>
+						<RowDefinition/>
 					</Grid.RowDefinitions>
 
-					<Grid Grid.Row="0">
+					<Grid Grid.Row="0" >
 						<Grid.RowDefinitions>
-							<RowDefinition/>
-							<RowDefinition/>
-							<RowDefinition/>
+							<RowDefinition Height="25"/>
+							<RowDefinition Height="25"/>
+							<RowDefinition Height="40"/>
 						</Grid.RowDefinitions>
 						<TextBlock Text="Группа 2. Управление табло."/>
 
@@ -130,22 +130,24 @@
 								<ColumnDefinition/>
 							</Grid.ColumnDefinitions>
 							<TextBlock Text="Надпись на табло: "/>
-							<TextBlock Grid.Column="10" 
-									   Text="{Binding MonitorText}"/>
+							<TextBlock Grid.Column="10" Text="{Binding MonitorText}"/>
 						</Grid>
 						
-						<Grid Grid.Row="2">
+						<Grid Grid.Row="2" >
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition />
-								<ColumnDefinition Width="120"/>
+								<ColumnDefinition Width="60" />
+								<ColumnDefinition Width="100"/>
 							</Grid.ColumnDefinitions>
 							<TextBox Height="30" 
 									 Text="{Binding EditMonitorText}"/>
+							<TextBox Height="30"
+									 Grid.Column="1"
+									 Text="{Binding MonitorCameraNumber}"/>
 							<Button 
-								Grid.Column="1" 
+								Grid.Column="2" 
 								Content="Отправить" 
-								Command="{Binding ClickSendTextMonitor}" 
-								Margin="10,0,10,0"/>
+								Command="{Binding ClickSendTextMonitor}"/>
 						</Grid>
 						
 					</Grid>
@@ -153,9 +155,9 @@
 					<Grid Grid.Row="1">
 						<Grid>
 							<Grid.RowDefinitions>
-								<RowDefinition Height="30"/>
-								<RowDefinition Height="30"/>
-								<RowDefinition Height="40"/>
+								<RowDefinition Height="25"/>
+								<RowDefinition Height="25"/>
+								<RowDefinition Height="50"/>
 							</Grid.RowDefinitions>
 							
 							<TextBlock Grid.Row="0" 
@@ -171,16 +173,20 @@
 										   Text="{Binding StateTextMonitor}"/>
 							</Grid>
 
-							<Grid Grid.Row="2">
+							<Grid Grid.Row="2" >
 								<Grid.ColumnDefinitions>
-									<ColumnDefinition Width="1*"/>
-									<ColumnDefinition Width="2*"/>
+									<ColumnDefinition Width="70"/>
+									<ColumnDefinition Width="80"/>
+									<ColumnDefinition Width="150"/>
 								</Grid.ColumnDefinitions>
-								<Button Grid.Column="0" 
+								<TextBox Height="30"
+									 Grid.Column="0"
+									 Text="{Binding DoorCameraNumber}"/>
+								<Button Grid.Column="1" 
 										Content="Открыть" 
 										HorizontalAlignment="Center"
 										Command="{Binding OpenStateDoor}"/>
-								<Button Grid.Column="1"
+								<Button Grid.Column="2"
 										Content="Аварийный режим" 
 										HorizontalAlignment="Center"
 										Command="{Binding WarningStateDoor}"/>
@@ -188,7 +194,7 @@
 						</Grid>
 					</Grid>
 
-					<Grid Grid.Row="2">
+					<Grid Grid.Row="2" >
 						<TextBlock Text="Группа 5. MQTT."/>
 						<TreeView Items="{Binding TreeMQTT}"
 								  Width="400" Height="480"

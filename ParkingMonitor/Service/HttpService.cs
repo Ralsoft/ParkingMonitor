@@ -1,18 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 
 namespace ParkingMonitor.Service
 {
     public class HttpService
     {
         private const string _port = "8080";
-        private const string _host = "192.168.8.104";
+        private const string _host = "192.168.8.101";
 
         public enum Method
         {
@@ -69,15 +66,13 @@ namespace ParkingMonitor.Service
             return null;
         }
 
-
-
         public async static Task<string> sendGRZ(string GRZ, string camNumber)
         {
             string url = $"{GenerateURI()}/send";
             return await sendRequest(url, "", "GET", new Dictionary<string, string>{
                     {"topic", "Parking/IntegratorCVS"},
                     {"payload", GRZ},
-                    {"camNumber", camNumber}
+                    {"camNumber", camNumber},
                 });
         }
     }
