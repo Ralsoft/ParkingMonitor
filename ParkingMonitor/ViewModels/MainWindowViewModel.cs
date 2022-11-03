@@ -6,6 +6,7 @@ using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace ParkingMonitor.ViewModels
@@ -162,8 +163,27 @@ namespace ParkingMonitor.ViewModels
         {
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
-                MQTTNodes.Add(node);
+                Merge(node, MQTTNodes);
             });
+        }
+
+        public void Merge(MQTTNode node, ObservableCollection<MQTTNode> nodes)
+        {
+            var item = new List<MQTTNode>(nodes)
+                .FirstOrDefault(x => x.Topic == node.Topic);
+
+            if(node.Topic == item?.Topic)
+            {
+                if(node.MQTTNodes.Count == 0)
+                    item.Body = node.Body;
+                else
+                {
+                    foreach (var i in node.MQTTNodes)
+                        Merge(i, item.MQTTNodes);
+                }
+            }
+            else
+                nodes.Add(node);
         }
     }
 }

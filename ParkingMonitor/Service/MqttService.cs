@@ -3,6 +3,7 @@ using Newtonsoft.Json.Serialization;
 using ParkingMonitor.Interfaces;
 using ParkingMonitor.Models;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Text;
 using System.Threading.Tasks;
 using uPLibrary.Networking.M2Mqtt;
@@ -18,7 +19,7 @@ namespace ParkingMonitor.Service
         {
             _client = new MqttClient("194.87.237.67");
             _client.Connect("ParkingMonitor");
-            _client.Subscribe(new string[] { "Parking/#" }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
+            _client.Subscribe(new string[] { "#" }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
             _client.MqttMsgPublishReceived += (sender, e) =>
             {
                 var message = Encoding.UTF8.GetString(e.Message);
@@ -35,7 +36,7 @@ namespace ParkingMonitor.Service
                 var node = new MQTTNode()
                 {
                     Topic = stack.Dequeue(),
-                    MQTTNodes = new List<MQTTNode>
+                    MQTTNodes = new ObservableCollection<MQTTNode>
                     {
                         addNodeToNode(stack, message)
                     }
@@ -54,12 +55,16 @@ namespace ParkingMonitor.Service
             };
 
             if (stack.Count > 0)
-                node.MQTTNodes = new List<MQTTNode>
+                node.MQTTNodes = new ObservableCollection<MQTTNode>
                 {
                     addNodeToNode(stack, body),
                 };
-            else
+            else 
+            {
                 node.Body = body;
+                node.MQTTNodes = new ObservableCollection<MQTTNode>();
+            }
+               
             
             
             return node;
