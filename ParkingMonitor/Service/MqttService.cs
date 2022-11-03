@@ -21,14 +21,48 @@ namespace ParkingMonitor.Service
             _client.Subscribe(new string[] { "Parking/#" }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
             _client.MqttMsgPublishReceived += (sender, e) =>
             {
-                iMQTTPublishReceived.AddEvent(new ParkingEvent
+                var message = Encoding.UTF8.GetString(e.Message);
+                var topic = e.Topic;
+                var titleNodes = topic.Split('/');
+                
+                var stack = new Queue<string>();
+
+                foreach(var item in titleNodes)
                 {
-                    Place = "тест",
-                    DateTime = System.DateTime.Now,
-                    EventType = "тест",
-                    GRZ = "тест"
-                });
+                    stack.Enqueue(item);
+                }
+
+                var node = new MQTTNode()
+                {
+                    Topic = stack.Dequeue(),
+                    MQTTNodes = new List<MQTTNode>
+                    {
+                        addNodeToNode(stack, message)
+                    }
+                };
+
+                iMQTTPublishReceived.AddNodeToTree(node);
+               
             };
+        }
+
+        public MQTTNode addNodeToNode(Queue<string> stack, string body)
+        {
+            var node = new MQTTNode()
+            {
+                Topic = stack.Dequeue(),
+            };
+
+            if (stack.Count > 0)
+                node.MQTTNodes = new List<MQTTNode>
+                {
+                    addNodeToNode(stack, body),
+                };
+            else
+                node.Body = body;
+            
+            
+            return node;
         }
 
 

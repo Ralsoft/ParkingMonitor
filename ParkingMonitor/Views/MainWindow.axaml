@@ -213,17 +213,35 @@
 						</Grid>
 					</Grid>
 
-					<Grid Grid.Row="2" >
-						<TextBlock Text="Группа 5. MQTT."/>
-						<TreeView Items="{Binding TreeMQTT}"
-								  Width="400" Height="480"
-								  HorizontalAlignment="Left">
-							<TreeView.ItemTemplate>
-								<TreeDataTemplate ItemsSource="{Binding Subfolders}">
-									<TextBlock Text="{Binding strNodeText}"/>
-								</TreeDataTemplate>
-							</TreeView.ItemTemplate>
-						</TreeView>
+					<Grid Grid.Row="3">
+						<Grid>
+							<Grid.RowDefinitions>
+								<RowDefinition Height="20"/>
+								<RowDefinition/>
+							</Grid.RowDefinitions>
+							<TextBlock Text="Группа 5. MQTT."/>
+
+							<TreeView 
+								Grid.Row="1"
+								Items="{Binding MQTTNodes}">
+								<TreeView.ItemTemplate>
+									<TreeDataTemplate ItemsSource="{Binding MQTTNodes}">
+										<Grid>
+											<Grid.ColumnDefinitions>
+												<ColumnDefinition/>
+												<ColumnDefinition/>
+											</Grid.ColumnDefinitions>
+											<TextBlock Grid.Column="0" Text="{Binding Topic}"/>
+											<TextBlock Grid.Column="1" Text="{Binding Body}"/>
+										</Grid>
+									</TreeDataTemplate>
+								</TreeView.ItemTemplate>
+							</TreeView>
+
+						</Grid>
+						
+						
+						
 					</Grid>
 				</Grid>
 			</Grid>

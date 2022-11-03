@@ -37,8 +37,6 @@ namespace ParkingMonitor.ViewModels
 
         #region Fields
 
-
-
         private string _grz;
         public string GRZ
         {
@@ -95,7 +93,12 @@ namespace ParkingMonitor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _parkingEvents, value);
         }
 
-        public bool CurrentThreadIsLoopThread => throw new NotImplementedException();
+        private ObservableCollection<MQTTNode> _mqttNodes = new ObservableCollection<MQTTNode>();
+        public ObservableCollection<MQTTNode> MQTTNodes
+        {
+            get => _mqttNodes;
+            set => this.RaiseAndSetIfChanged(ref _mqttNodes, value);
+        }
 
 
         #endregion
@@ -114,13 +117,10 @@ namespace ParkingMonitor.ViewModels
                    y => y.GRZCameraNumber,
                    (grz, cm) => grz?.Length == 8 && cm?.Length > 0);
 
-
             ClickSend = ReactiveCommand.Create(async () =>
             {
                 string result = await HttpService.sendGRZ(GRZ, GRZCameraNumber);
             }, canClickSend);
-
-           
 
             ClickSendTextMonitor = ReactiveCommand.Create(async () =>
             {
@@ -155,6 +155,14 @@ namespace ParkingMonitor.ViewModels
         {
             Dispatcher.UIThread.InvokeAsync(async () => {
                 ParkingEvents.Add(@event);
+            });
+        }
+
+        public void AddNodeToTree(MQTTNode node)
+        {
+            Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                MQTTNodes.Add(node);
             });
         }
     }
