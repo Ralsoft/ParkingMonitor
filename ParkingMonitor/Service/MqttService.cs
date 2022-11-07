@@ -17,7 +17,7 @@ namespace ParkingMonitor.Service
 
         public MqttService(IMqttPublishReceived iMQTTPublishReceived)
         {
-            _client = new MqttClient("194.87.237.67");
+            _client = new MqttClient(SettingsService.getMqttIp());
             _client.Connect("ParkingMonitor");
             _client.Subscribe(new string[] { "#" }, new byte[] { MqttMsgBase.QOS_LEVEL_AT_LEAST_ONCE });
             _client.MqttMsgPublishReceived += (sender, e) =>
