@@ -2,9 +2,9 @@
 
 namespace ParkingMonitor.Interfaces
 {
-    public interface IMQTTPublishReceived
+    public interface IMqttPublishReceived
     {
         public void AddEvent(ParkingEvent @event);
-        public void AddNodeToTree(MQTTNode node);
+        public void AddNodeToTree(MqttNode node);
     }
 }

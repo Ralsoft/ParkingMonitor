@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ParkingMonitor.Models
 {
-    public class MQTTNode : INotifyPropertyChanged
+    public class MqttNode : INotifyPropertyChanged
     {
 
-        private ObservableCollection<MQTTNode> _mqttNodes;
+        private ObservableCollection<MqttNode> _mqttNodes;
         
-        public ObservableCollection<MQTTNode> MQTTNodes
+        public ObservableCollection<MqttNode> MQTTNodes
         {
             get { return _mqttNodes; }
             set

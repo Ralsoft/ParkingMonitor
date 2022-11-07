@@ -11,7 +11,7 @@ using System.Windows.Input;
 
 namespace ParkingMonitor.ViewModels
 {
-    public class MainWindowViewModel : ViewModelBase, IMQTTPublishReceived
+    public class MainWindowViewModel : ViewModelBase, IMqttPublishReceived
     {
 
         #region ICommands
@@ -94,8 +94,8 @@ namespace ParkingMonitor.ViewModels
             set => this.RaiseAndSetIfChanged(ref _parkingEvents, value);
         }
 
-        private ObservableCollection<MQTTNode> _mqttNodes = new ObservableCollection<MQTTNode>();
-        public ObservableCollection<MQTTNode> MQTTNodes
+        private ObservableCollection<MqttNode> _mqttNodes = new ObservableCollection<MqttNode>();
+        public ObservableCollection<MqttNode> MQTTNodes
         {
             get => _mqttNodes;
             set => this.RaiseAndSetIfChanged(ref _mqttNodes, value);
@@ -120,7 +120,11 @@ namespace ParkingMonitor.ViewModels
 
             ClickSend = ReactiveCommand.Create(async () =>
             {
-                string result = await HttpService.sendGRZ(GRZ, GRZCameraNumber);
+                await _service.PublishGrz(new GrzRequest
+                {
+                    camNumber = GRZCameraNumber,
+                    Grz = GRZ,
+                });
             }, canClickSend);
 
             ClickSendTextMonitor = ReactiveCommand.Create(async () =>
@@ -159,7 +163,7 @@ namespace ParkingMonitor.ViewModels
             });
         }
 
-        public void AddNodeToTree(MQTTNode node)
+        public void AddNodeToTree(MqttNode node)
         {
             Dispatcher.UIThread.InvokeAsync(async () =>
             {
@@ -167,9 +171,9 @@ namespace ParkingMonitor.ViewModels
             });
         }
 
-        public void Merge(MQTTNode node, ObservableCollection<MQTTNode> nodes)
+        public void Merge(MqttNode node, ObservableCollection<MqttNode> nodes)
         {
-            var item = new List<MQTTNode>(nodes)
+            var item = new List<MqttNode>(nodes)
                 .FirstOrDefault(x => x.Topic == node.Topic);
 
             if(node.Topic == item?.Topic)

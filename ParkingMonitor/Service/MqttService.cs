@@ -15,7 +15,7 @@ namespace ParkingMonitor.Service
     {
         private MqttClient _client;
 
-        public MqttService(IMQTTPublishReceived iMQTTPublishReceived)
+        public MqttService(IMqttPublishReceived iMQTTPublishReceived)
         {
             _client = new MqttClient("194.87.237.67");
             _client.Connect("ParkingMonitor");
@@ -26,46 +26,55 @@ namespace ParkingMonitor.Service
                 var topic = e.Topic;
                 var titleNodes = topic.Split('/');
                 
-                var stack = new Queue<string>();
+                var queue = new Queue<string>();
 
                 foreach(var item in titleNodes)
                 {
-                    stack.Enqueue(item);
+                    queue.Enqueue(item);
                 }
 
-                var node = new MQTTNode()
+                var node = new MqttNode()
                 {
-                    Topic = stack.Dequeue(),
-                    MQTTNodes = new ObservableCollection<MQTTNode>
-                    {
-                        addNodeToNode(stack, message)
-                    }
+                    Topic = queue.Dequeue(),
                 };
+
+                if(queue.Count > 0)
+                {
+                    node.MQTTNodes = new ObservableCollection<MqttNode>
+                    {
+                        addNodeToNode(queue, message)
+                    };
+                }
+                else
+                {
+                    node.Body = message;
+                    node.MQTTNodes = new ObservableCollection<MqttNode>();
+                }
 
                 iMQTTPublishReceived.AddNodeToTree(node);
                
             };
         }
 
-        public MQTTNode addNodeToNode(Queue<string> stack, string body)
+        public MqttNode addNodeToNode(Queue<string> queue, string body)
         {
-            var node = new MQTTNode()
+            var node = new MqttNode()
             {
-                Topic = stack.Dequeue(),
+                Topic = queue.Dequeue(),
             };
 
-            if (stack.Count > 0)
-                node.MQTTNodes = new ObservableCollection<MQTTNode>
+            if (queue.Count > 0)
+            {
+                node.MQTTNodes = new ObservableCollection<MqttNode>
                 {
-                    addNodeToNode(stack, body),
+                    addNodeToNode(queue, body),
                 };
+            }
             else 
             {
                 node.Body = body;
-                node.MQTTNodes = new ObservableCollection<MQTTNode>();
+                node.MQTTNodes = new ObservableCollection<MqttNode>();
             }
-               
-            
             
             return node;
         }
@@ -77,6 +86,20 @@ namespace ParkingMonitor.Service
             await Task.Run(() =>
             {
                 _client.Publish(topic, message);
+            });
+        }
+
+        public async Task PublishGrz(GrzRequest grzRequest)
+        {
+            await Task.Run(() =>
+            {
+                var json = JsonConvert.SerializeObject(grzRequest, new JsonSerializerSettings()
+                {
+                    ContractResolver = new CamelCasePropertyNamesContractResolver()
+                });
+
+                byte[] jsonBytes = Encoding.UTF8.GetBytes(json);
+                SendMessage("Parking/IntegratorCVS", jsonBytes);
             });
         }
 
